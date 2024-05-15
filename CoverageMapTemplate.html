@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Coverage Map</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    <style>
+    	#map{
+            position: relative;
+            width: 100.0%;
+            height: 100.0%;
+            left: 0.0%;
+            top: 0.0%;
+        }
+        html, body {
+			height: 100%;
+			margin: 0;
+		}
+    </style>
+</head>
+<body>
+	<div id="map"></div>
+	<script>
+		var cities = /*CITIES*/[]/*CITIES*/
+		var radius = /*RADIUS*/2000.0/*RADIUS*/
+		const map = L.map("map")
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+		/*color options = black, blue, green, grey, orange, red, violet, yellow*/
+		const selected_color = "red"
+		const non_selected_color = "blue"
+        const city_marker = L.Icon.extend({
+            options: {
+                shadowUrl:"https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/images/marker-shadow.png",
+                iconAnchor:  [12, 41],
+            }
+        });
+		const selected_icon = new city_marker({
+			iconUrl:`https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-${selected_color}.png`,
+		});
+		const non_selected_icon = new city_marker({
+            iconUrl:`https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-${non_selected_color}.png`,
+        });
+
+        var points = []
+		for(let city of cities){
+			let icon = non_selected_icon
+            let coordinates = [city.lat,city.lon]
+			if(city.selected){
+				icon = selected_icon
+				L.circle(coordinates, {radius: radius*1000}).addTo(map).bindPopup(city.name)
+			}
+			let point = L.marker(coordinates, {icon: icon}).addTo(map).bindPopup(city.name)
+            points.push(point)
+		}
+        if(points.length){
+            map.fitBounds(L.featureGroup(points).getBounds())
+        }
+        else{
+            map.fitWorld();
+        }
+	</script>
+</body>
+</html>
